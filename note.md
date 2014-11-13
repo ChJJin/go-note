@@ -208,7 +208,7 @@ after  // 由于panic了，等于抛出异常了，就不输出'leaving in f'了
 
 recover只在defer函数里面生效。
 
-(defer-panic-and-recover)[http://blog.golang.org/defer-panic-and-recover]
+[defer-panic-and-recover](http://blog.golang.org/defer-panic-and-recover)
 
 
 ##For##
