@@ -8,6 +8,7 @@ import (
 )
 ```
 在导入了包之后，可以用其导出的名称来调用它，例如```fmt.Println()```
+
 在包中，首字母大写的名称会被导出，例如```Foo```
 
 
@@ -40,6 +41,7 @@ func main(){
 
 
 ##函数##
+形如
 ```
 func FUNCTION_NAME (ARGUMENTS) RETURN_TYPE {
   //...
@@ -47,7 +49,6 @@ func FUNCTION_NAME (ARGUMENTS) RETURN_TYPE {
 }
 ```
 
-例如:
 与```func add(x int, y int)```一样
 ```
 func add (x, y int) int{ 
@@ -73,7 +74,7 @@ func split(sum int) (x, y int){
 }
 ```
 
-闭包
+####闭包####
 ```
 func addOne(begin int) func() int {
   return func() int {
@@ -112,7 +113,7 @@ for {
 }
 ```
 
-实现while:
+####while####
 ```
 i := 0
 for i < 10 {
@@ -120,7 +121,8 @@ for i < 10 {
 }
 ```
 
-Range
+####Range####
+
 可对array或者map进行迭代
 ```
 nums := []int{"one", "two"}
@@ -214,7 +216,7 @@ func main(){
 }
 ```
 
-结构体文法:
+####结构体文法####
 &构造指向结构体文法的指针
 ```
 var (
@@ -225,7 +227,7 @@ var (
 )
 ```
 
-方法
+####方法####
 ```
 // 定义结构体的函数，在函数名前面指定结构
 func (v *Vertex) square() int { 
@@ -248,8 +250,7 @@ func (f MyFloat) Abs() float64 {
   return float64(f)
 }
 ```
-接收者为指针,
-避免方法调用需要拷贝值；方法可以修改接收者的值
+接收者为指针，避免方法调用需要拷贝值；方法可以修改接收者的值
 ```
 func (v *Vertex) square() int { 
   return math.Sqrt(math.Pow(X, 2) + math.Pow(Y, 2))
@@ -318,14 +319,14 @@ var a []int
 // a == nil, len(a) == 0, cap(a) == 0
 ```
 
-容量
+####容量####
 ```
 a := make([]int, 0, 5) // len(a) = 0, cap(a) = 5
 a = a[:cap(a)] // 通过切片来扩容(可增长到容量上限)
 a = a[1:] // len(a) = 4, cap(a) = 4
 ```
 
-切片
+####切片####
 ```
 s[1:3] // 不包括第三个
 s[:3]
@@ -472,13 +473,14 @@ func main() {
 }
 ```
 
-buffer
+####buffer####
+
 第二个参数作为buffer长度，向channel发数据时，只有在buffer满了的时候才会阻塞
 ```
 ch := make(chan int, 2)
 ```
 
-close
+####close####
 ```
 func fi(n int, c chan int){
   x, y := 0, 1
@@ -504,9 +506,10 @@ v, ok := <-ch
 循环```for i := range c```会不断从channel接收值，直到被close
 
 note: 只有发送者可以关闭，而不是接收者，向一个已经关闭的channel发送数据会引起panic
+
 note: channel与文件不同，通常无须关闭。只有在需要的时候才有必要关闭，例如中断一个range
 
-select
+####select####
 ```
 func fi(c, quit chan int){
   x, y := 0, 1
@@ -533,6 +536,7 @@ func main(){
 }
 ```
 select会阻塞，直到其中一个可以执行。如果多个可以执行，随机执行一个。
+
 当所有分支都没有准备的时候，default会执行，so，为了非阻塞的发送或者接收，可使用default分支
 ```
 select {
