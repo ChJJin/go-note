@@ -11,6 +11,8 @@ import (
 
 在包中，首字母大写的名称会被导出，例如```Foo```
 
+包名与导入路径的最后一个目录一致。例如，```import "math/rand"```由```package rand```开始，即在```math/rand/```目录下的文件都是```rand```包的
+
 
 ##变量##
 ```
@@ -31,6 +33,49 @@ const (
 func main(){
   const World = "世界"
 }
+```
+
+itoa是go的常量赋值自增量
+```
+const (
+  a = itoa // a = 0
+  b        // b = 1
+)
+```
+
+
+##基本类型##
+```
+bool
+
+string
+
+int int8 int16 int32 int64
+uint uint8 uint16 uint32 uint64 uintptr
+
+byte // uint8的别名
+
+rune // int32的别名，代表一个Unicode码点
+
+float32 float64
+
+complex64 complex128
+```
+
+####零值####
+```
+// 数值 -> 0
+// 布尔 -> false
+// 字符串 -> ""
+// 指针 -> nil
+```
+
+####类型转换####
+类型转换需要显式转换
+```
+var i int = 42
+var f float64 = float64(i)
+var u uint = uint(f)
 ```
 
 
@@ -88,6 +133,82 @@ func main() {
   pos() // = 2
 }
 ```
+
+####defer####
+defer语句会延迟函数的执行直到上层函数返回，但在上层函数返回前，defer的函数都不会被调用
+```
+defer fmt.Println("world")
+fmt.Println("hello")
+```
+
+defer的函数的参数在声明的时候确定，以下输出1
+```
+i := 0
+defer fmt.Println(i)
+i++
+```
+
+defer的函数在return前执行，能改变返回的值，以下返回的是2
+```
+func c() (i int){
+  defer func() {
+    i++
+  }()
+  return 1
+}
+```
+
+defer的函数被压到栈中。所以函数返回时，按照后进先出的顺序调用defer的函数
+
+tips: defer用在stream的close上
+
+####panic & recover####
+panic和recover我们可以看成是throw和catch
+```
+func f(){
+  defer func(){
+    if r := recover(); r != nil {
+      fmt.Println("recover in f", r)
+    }
+  }()
+  fmt.Println("calling g in f")
+  g(0)
+  fmt.Println("leaving in f")
+}
+func g(i int){
+  if i > 2 {
+    fmt.Println("panic")
+    panic(fmt.Sprintf("%v", i))
+  }  
+  defer fmt.Println("defer in g", i)
+  fmt.Println("running in g", i)
+  g(i + 1)
+}
+func main(){
+  f()
+  fmt.Println("after")
+}
+```
+运行结果：
+```
+calling g in f
+running in g 0
+running in g 1
+running in g 2
+panic  // panic了就不继续执行下去了，函数调用退出，并且执行defer
+defer in g 2
+defer in g 1
+defer in g 0
+recover in f 3 // 那个'r'是从panic中返回的
+after  // 由于panic了，等于抛出异常了，就不输出'leaving in f'了，然后在defer中被recover捕捉到了
+```
+如果没有recover捕捉，则panic会一直向上传递，直到程序抛出错误。
+
+除了手动调用panic，其他运行时错误也会抛出panic，如out-of-bounds array
+
+recover只在defer函数里面生效。
+
+(defer-panic-and-recover)[http://blog.golang.org/defer-panic-and-recover]
 
 
 ##For##
@@ -172,26 +293,6 @@ switch { // 同switch true
   default:
     // ..
 }
-```
-
-
-
-##基本类型##
-```
-bool
-
-string
-
-int int8 int16 int32 int64
-uint uint8 uint16 uint32 uint64 uintptr
-
-byte // uint8的别名
-
-rune // int32的别名，代表一个Unicode码点
-
-float32 float64
-
-complex64 complex128
 ```
 
 
@@ -318,6 +419,23 @@ a := make([]int, 5) // len(a) = 5
 var a []int
 // a == nil, len(a) == 0, cap(a) == 0
 ```
+
+添加元素
+```
+func append(s []T, ...T) []T
+```
+append的第一个参数是类型为T的数组，其余类型为T的值将会添加到数组中。
+
+append返回新的数组。
+
+
+####copy####
+```
+a := []int{1, 2, 3, 4}
+s := make([]int, 4)
+n1 := copy(s, a[0:]) // n1 = 6, s = []int{1, 2, 3, 4}
+```
+
 
 ####容量####
 ```
